@@ -18,13 +18,24 @@ const CsvParse = async (input, config) => {
 }
 
 const App = () => {
-  const {handleSubmit, register} = useForm()
+  let defaultValues
+  try {
+    defaultValues = JSON.parse(localStorage.getItem('defaultValues'))
+  } catch {
+    defaultValues = {importTo: "pfsense"}
+  }
+  const {handleSubmit, register} = useForm({defaultValues})
   const [importColumns, setImportColumns] = useState([])
   const [script, setScript] = useState("")
-  const [importTo, setImportTo] = useState("pfsense")
+  const [importTo, setImportTo] = useState(defaultValues['importTo'])
 
   const onSubmit = (options) => {
-    const { defaults, columns, file, updateDetails, updatePaswwords } = options
+    const {
+      file, importTo, columns, defaults, updateDetails, updatePaswwords
+    } = options
+    localStorage.setItem('defaultValues', JSON.stringify({
+      importTo, columns, defaults, updateDetails, updatePaswwords
+    }))
     CsvParse(file[0], {header: true}).then(r => {
       const users = r.data.map(row => {
         const out = {}
