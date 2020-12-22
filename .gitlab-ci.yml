@@ -1,0 +1,34 @@
+image: node
+
+stages:
+  - build
+  - deploy
+
+webpack build:
+  cache:
+    paths:
+    - node_modules/
+  stage: build
+  before_script:
+    - apt-get update -qy
+    - apt-get install -y libvips-dev
+  script:
+    - npm install --dev
+    - npm run build
+  artifacts:
+    paths:
+      - build
+  only:
+    - master
+
+pages:
+  stage: deploy
+  script:
+  - mv build public
+  variables:
+    GIT_STRATEGY: none
+  artifacts:
+    paths:
+    - public
+  only:
+    - master
