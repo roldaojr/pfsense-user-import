@@ -4,6 +4,7 @@ import {
   Button, Form, Container, Row, Col, Card, Tab, Nav, Alert
 } from 'react-bootstrap'
 import { useForm } from "react-hook-form"
+import { CopyToClipboard } from 'react-copy-to-clipboard'
 import Papa from 'papaparse'
 import {
   LocalUserColumnsForm, LocalUserDefaultsForm,
@@ -18,12 +19,8 @@ const CsvParse = async (input, config) => {
 }
 
 const App = () => {
-  let defaultValues
-  try {
-    defaultValues = JSON.parse(localStorage.getItem('defaultValues'))
-  } catch {
-    defaultValues = {importTo: "pfsense"}
-  }
+  let defaultValues = JSON.parse(localStorage.getItem('defaultValues'))
+  if(defaultValues === null) defaultValues = {importTo: "pfsense"}
   const {handleSubmit, register} = useForm({defaultValues})
   const [importColumns, setImportColumns] = useState([])
   const [script, setScript] = useState("")
@@ -128,14 +125,23 @@ const App = () => {
           </Col>
           <Col md={6}>
             <Card>
-              <Card.Header>Generated Script</Card.Header>
               <Alert variant="warning" className="mb-0">
                 <Alert.Link href="https://docs.netgate.com/pfsense/en/latest/diagnostics/command-prompt.html#php-execute" target="_blank">
                   Running PHP commands on pfSense
                 </Alert.Link>
               </Alert>
+              <Card.Header>Generated Script</Card.Header>
               <Card.Body>
-                <pre>{script}</pre>
+                <Form.Group>
+                  <Form.Control as="textarea" rows={10} wrap="off"
+                    value={script} disabled={(!script)} readOnly={true}
+                  />
+                </Form.Group>
+                <CopyToClipboard text={script}>
+                  <Button variant="primary" disabled={(!script)}>
+                    Copy
+                  </Button>
+                </CopyToClipboard>
               </Card.Body>
             </Card>
           </Col>
